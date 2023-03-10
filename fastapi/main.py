@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from enum import Enum
 
 from typing import Union
@@ -64,7 +64,7 @@ async def read_items(q: Union[str, None] = Query(default=..., title="Query strin
     if q:
         results.update({"q": q})
     return results
-
+'''
 @app.get("/items/{item_id}")
 async def read_item(item_id: str, q: Union[str, None] = None, short: bool = False):
     item = {"item_id": item_id}
@@ -75,6 +75,14 @@ async def read_item(item_id: str, q: Union[str, None] = None, short: bool = Fals
             {"description" : "This is an amazing item that has a long description"}
         )
     return item
+'''
+@app.get("/items/{item_id}")
+async def read_items(*, item_id: int = Path(title="The ID of the item to get", gt=0, le=1000), q:str, size: float = Query(gt=0, lt=10.5)):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+        results.update({"size": size})
+    return results
 
 @app.get("/users/{user_id}/items/{item_id}")
 async def read_user_item(user_id: int, item_id:str, q: Union[str, None] = None, short: bool = False):
