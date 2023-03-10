@@ -3,6 +3,8 @@ from enum import Enum
 
 from typing import Union
 
+from pydantic import BaseModel
+
 app = FastAPI()
 
 @app.get("/")
@@ -81,3 +83,24 @@ async def read_user_item(user_id: int, item_id:str, q: Union[str, None] = None, 
 async def read_user_item(item_id: str, needy: str, skip: int = 0, limit: Union[int, None] = None):
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
+
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+    price: float
+    tax: Union[float, None] = None
+
+@app.post("/items/")
+async def create_item(item: Item):
+    item_dict = item.dict()
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+    return item.dict
+
+@app.put("/items/{item_id}")
+async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
+    result = {"item_id":item_id, **item.dict()}
+    if q:
+        result.update({"q": q})
+    return result
