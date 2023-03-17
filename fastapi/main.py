@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Path
+from fastapi import FastAPI, Query, Path, Body
 from enum import Enum
 
 from typing import Union
@@ -106,6 +106,10 @@ class Item(BaseModel):
     price: float
     tax: Union[float, None] = None
 
+class User(BaseModel):
+    user_name: str
+    full_name: Union[str, None] = None
+
 @app.post("/items/")
 async def create_item(item: Item):
     item_dict = item.dict()
@@ -120,3 +124,16 @@ async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
     if q:
         result.update({"q": q})
     return result
+
+@app.put("/items/{item_id}")
+async def update_item(item_id: int, item: Item = Body(embed=True)):
+    results = {"item_id": item_id, "item" : item}
+    return resultsg
+'''
+async def update_item(
+        *,
+        item_id: int, item: Item, user: User, importance: int = Body(gt=0),
+        q: Union[str, None] = None
+):
+'''
+
