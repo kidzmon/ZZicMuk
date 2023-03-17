@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Query, Path, Body
 from enum import Enum
 
-from typing import Union
+from typing import Union, List, Set, Dict
 
-from pydantic import BaseModel, Required, Field
+from pydantic import BaseModel, Required, Field, HttpUrl
 
 app = FastAPI()
 
@@ -100,6 +100,10 @@ async def read_user_item(item_id: str, needy: str, skip: int = 0, limit: Union[i
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
 
+class Image(BaseModel):
+    url: HttpUrl
+    name: str
+
 class Item(BaseModel):
     name: str
     description: Union[str, None] = Field(
@@ -107,11 +111,31 @@ class Item(BaseModel):
     )
     price: float = Field(gt=0, description="Teh price must be greater than zero")
     tax: Union[float, None] = None
+    #tags: List[str] = []
+    tags: Set[str] = set()
+    image: Union[List[Image], None] = None
 
 class User(BaseModel):
     user_name: str
     full_name: Union[str, None] = None
 
+class Offer(BaseModel):
+    name: str
+    description : Union[str,None] = None
+    price: float
+    items: List[Item]
+
+@app.post("/offers/")
+async def create_offer(offer:Offer):
+    return offer
+
+@app.post("/index-weights/")
+async def create_index_weights(weights: Dict[int, float]):
+    return weights
+
+@app.post("/images/multiple/")
+async def create_multiple_images(images: List[Image]):
+    return images
 @app.post("/items/")
 async def create_item(item: Item):
     item_dict = item.dict()
