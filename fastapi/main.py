@@ -3,7 +3,7 @@ from enum import Enum
 
 from typing import Union
 
-from pydantic import BaseModel, Required
+from pydantic import BaseModel, Required, Field
 
 app = FastAPI()
 
@@ -102,8 +102,10 @@ async def read_user_item(item_id: str, needy: str, skip: int = 0, limit: Union[i
 
 class Item(BaseModel):
     name: str
-    description: Union[str, None] = None
-    price: float
+    description: Union[str, None] = Field(
+        default = None, title="The description of the item", max_length=300
+    )
+    price: float = Field(gt=0, description="Teh price must be greater than zero")
     tax: Union[float, None] = None
 
 class User(BaseModel):
@@ -128,7 +130,7 @@ async def create_item(item_id: int, item: Item, q: Union[str, None] = None):
 @app.put("/items/{item_id}")
 async def update_item(item_id: int, item: Item = Body(embed=True)):
     results = {"item_id": item_id, "item" : item}
-    return resultsg
+    return results
 '''
 async def update_item(
         *,
